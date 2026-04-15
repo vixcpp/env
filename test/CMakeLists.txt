@@ -1,0 +1,64 @@
+add_executable(vix_env_get_test get_test.cpp)
+target_compile_features(vix_env_get_test PRIVATE cxx_std_20)
+target_link_libraries(vix_env_get_test PRIVATE vix::env)
+add_test(NAME vix_env_get_test COMMAND vix_env_get_test)
+
+add_executable(vix_env_get_bool_test get_bool_test.cpp)
+target_compile_features(vix_env_get_bool_test PRIVATE cxx_std_20)
+target_link_libraries(vix_env_get_bool_test PRIVATE vix::env)
+add_test(NAME vix_env_get_bool_test COMMAND vix_env_get_bool_test)
+
+add_executable(vix_env_get_int_test get_int_test.cpp)
+target_compile_features(vix_env_get_int_test PRIVATE cxx_std_20)
+target_link_libraries(vix_env_get_int_test PRIVATE vix::env)
+add_test(NAME vix_env_get_int_test COMMAND vix_env_get_int_test)
+
+add_executable(vix_env_get_uint_test get_uint_test.cpp)
+target_compile_features(vix_env_get_uint_test PRIVATE cxx_std_20)
+target_link_libraries(vix_env_get_uint_test PRIVATE vix::env)
+add_test(NAME vix_env_get_uint_test COMMAND vix_env_get_uint_test)
+
+add_executable(vix_env_get_double_test get_double_test.cpp)
+target_compile_features(vix_env_get_double_test PRIVATE cxx_std_20)
+target_link_libraries(vix_env_get_double_test PRIVATE vix::env)
+add_test(NAME vix_env_get_double_test COMMAND vix_env_get_double_test)
+
+add_executable(vix_env_has_test has_test.cpp)
+target_compile_features(vix_env_has_test PRIVATE cxx_std_20)
+target_link_libraries(vix_env_has_test PRIVATE vix::env)
+add_test(NAME vix_env_has_test COMMAND vix_env_has_test)
+
+add_executable(vix_env_set_test set_test.cpp)
+target_compile_features(vix_env_set_test PRIVATE cxx_std_20)
+target_link_libraries(vix_env_set_test PRIVATE vix::env)
+add_test(NAME vix_env_set_test COMMAND vix_env_set_test)
+
+add_executable(vix_env_unset_test unset_test.cpp)
+target_compile_features(vix_env_unset_test PRIVATE cxx_std_20)
+target_link_libraries(vix_env_unset_test PRIVATE vix::env)
+add_test(NAME vix_env_unset_test COMMAND vix_env_unset_test)
+
+add_executable(vix_env_parse_line_test parse_line_test.cpp)
+target_compile_features(vix_env_parse_line_test PRIVATE cxx_std_20)
+target_link_libraries(vix_env_parse_line_test PRIVATE vix::env)
+add_test(NAME vix_env_parse_line_test COMMAND vix_env_parse_line_test)
+
+add_executable(vix_env_parse_content_test parse_content_test.cpp)
+target_compile_features(vix_env_parse_content_test PRIVATE cxx_std_20)
+target_link_libraries(vix_env_parse_content_test PRIVATE vix::env)
+add_test(NAME vix_env_parse_content_test COMMAND vix_env_parse_content_test)
+
+add_executable(vix_env_load_file_test load_file_test.cpp)
+target_compile_features(vix_env_load_file_test PRIVATE cxx_std_20)
+target_link_libraries(vix_env_load_file_test PRIVATE vix::env)
+add_test(NAME vix_env_load_file_test COMMAND vix_env_load_file_test)
+
+add_executable(vix_env_load_layered_test load_layered_test.cpp)
+target_compile_features(vix_env_load_layered_test PRIVATE cxx_std_20)
+target_link_libraries(vix_env_load_layered_test PRIVATE vix::env)
+add_test(NAME vix_env_load_layered_test COMMAND vix_env_load_layered_test)
+
+add_executable(vix_env_resolve_env_file_test resolve_env_file_test.cpp)
+target_compile_features(vix_env_resolve_env_file_test PRIVATE cxx_std_20)
+target_link_libraries(vix_env_resolve_env_file_test PRIVATE vix::env)
+add_test(NAME vix_env_resolve_env_file_test COMMAND vix_env_resolve_env_file_test)
