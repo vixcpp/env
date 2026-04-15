@@ -1,0 +1,229 @@
+name: Env Strict CI
+
+on:
+  push:
+    branches: [main, master, dev]
+    paths:
+      - ".github/workflows/env-strict-ci.yml"
+      - "CMakeLists.txt"
+      - "cmake/**"
+      - "include/**"
+      - "src/**"
+      - "test/**"
+      - "README.md"
+      - "CHANGELOG.md"
+      - "vix.json"
+  pull_request:
+    branches: [main, master, dev]
+    paths:
+      - ".github/workflows/env-strict-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  DEPS: >
+    build-essential
+    cmake
+    ninja-build
+    clang
+    llvm
+    lld
+    g++
+    cppcheck
+    clang-tidy
+    valgrind
+    pkg-config
+    git
+  BUILD_JOBS: 2
+  VIX_GIT_BRANCH: dev
+
+jobs:
+  build-test-sanitized:
+    name: Sanitized Build and Tests (${{ matrix.compiler }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        compiler: [clang, gcc]
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch dependencies
+        run: |
+          rm -rf ../error ../path
+          git clone --depth 1 --branch "${VIX_GIT_BRANCH}" https://github.com/vixcpp/error.git ../error
+          git clone --depth 1 --branch "${VIX_GIT_BRANCH}" https://github.com/vixcpp/path.git ../path
+
+      - name: Verify dependencies
+        run: |
+          test -f ../error/CMakeLists.txt || exit 1
+          test -f ../path/CMakeLists.txt || exit 1
+
+      - name: Install deps
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y $DEPS
+
+      - name: Select compiler
+        run: |
+          if [ "${{ matrix.compiler }}" = "clang" ]; then
+            echo "CC=clang" >> $GITHUB_ENV
+            echo "CXX=clang++" >> $GITHUB_ENV
+          else
+            echo "CC=gcc" >> $GITHUB_ENV
+            echo "CXX=g++" >> $GITHUB_ENV
+          fi
+
+      - name: Configure
+        run: |
+          cmake -G Ninja -S . -B build \
+            -DCMAKE_BUILD_TYPE=Debug \
+            -DVIX_ENV_BUILD_TESTS=ON \
+            -DVIX_ENABLE_SANITIZERS=ON \
+            -DVIX_ENV_FETCH_ERROR=OFF \
+            -DVIX_ENV_FETCH_PATH=OFF
+
+      - name: Build
+        run: cmake --build build -j${BUILD_JOBS}
+
+      - name: Run tests
+        run: ctest --test-dir build --output-on-failure
+
+  static-analysis:
+    name: Static Analysis
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch deps
+        run: |
+          rm -rf ../error ../path
+          git clone --depth 1 --branch "${VIX_GIT_BRANCH}" https://github.com/vixcpp/error.git ../error
+          git clone --depth 1 --branch "${VIX_GIT_BRANCH}" https://github.com/vixcpp/path.git ../path
+
+      - name: Install deps
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y $DEPS
+
+      - name: Configure
+        run: |
+          cmake -G Ninja -S . -B build \
+            -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+            -DVIX_ENV_BUILD_TESTS=ON \
+            -DVIX_ENV_FETCH_ERROR=OFF \
+            -DVIX_ENV_FETCH_PATH=OFF
+
+      - name: clang-tidy
+        run: |
+          find src test -name '*.cpp' | xargs -r clang-tidy -p build || true
+
+      - name: cppcheck
+        run: |
+          cppcheck --enable=all --std=c++20 include src test || true
+
+  valgrind:
+    name: Valgrind
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch deps
+        run: |
+          rm -rf ../error ../path
+          git clone --depth 1 --branch "${VIX_GIT_BRANCH}" https://github.com/vixcpp/error.git ../error
+          git clone --depth 1 --branch "${VIX_GIT_BRANCH}" https://github.com/vixcpp/path.git ../path
+
+      - name: Install deps
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y $DEPS
+
+      - name: Configure
+        run: |
+          cmake -G Ninja -S . -B build \
+            -DVIX_ENV_BUILD_TESTS=ON \
+            -DVIX_ENV_FETCH_ERROR=OFF \
+            -DVIX_ENV_FETCH_PATH=OFF
+
+      - name: Build
+        run: cmake --build build -j${BUILD_JOBS}
+
+      - name: Run valgrind
+        run: |
+          for exe in $(find build/test -type f -executable); do
+            valgrind --leak-check=full "$exe" || true
+          done
+
+  package-smoke:
+    name: Package Smoke
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch deps
+        run: |
+          rm -rf ../error ../path
+          git clone --depth 1 --branch "${VIX_GIT_BRANCH}" https://github.com/vixcpp/error.git ../error
+          git clone --depth 1 --branch "${VIX_GIT_BRANCH}" https://github.com/vixcpp/path.git ../path
+
+      - name: Install deps
+        run: |
+          sudo apt-get update -y
+          sudo apt-get install -y $DEPS
+
+      - name: Install error
+        run: |
+          cmake -S ../error -B ../error/build -DCMAKE_INSTALL_PREFIX=$PWD/stage
+          cmake --build ../error/build
+          cmake --install ../error/build
+
+      - name: Install path
+        run: |
+          cmake -S ../path -B ../path/build \
+            -DCMAKE_PREFIX_PATH=$PWD/stage \
+            -DCMAKE_INSTALL_PREFIX=$PWD/stage \
+            -DVIX_PATH_FETCH_ERROR=OFF
+          cmake --build ../path/build
+          cmake --install ../path/build
+
+      - name: Install env
+        run: |
+          cmake -S . -B build \
+            -DCMAKE_PREFIX_PATH=$PWD/stage \
+            -DCMAKE_INSTALL_PREFIX=$PWD/stage \
+            -DVIX_ENV_FETCH_ERROR=OFF \
+            -DVIX_ENV_FETCH_PATH=OFF
+          cmake --build build
+          cmake --install build
+
+      - name: Smoke test
+        run: |
+          mkdir smoke
+          cat > smoke/CMakeLists.txt <<EOF
+          cmake_minimum_required(VERSION 3.20)
+          project(env_smoke)
+          find_package(vix_env CONFIG REQUIRED)
+          add_executable(main main.cpp)
+          target_link_libraries(main vix::env)
+          EOF
+
+          echo '#include <iostream>
+          int main(){std::cout<<"ok";}' > smoke/main.cpp
+
+          cmake -S smoke -B smoke/build -DCMAKE_PREFIX_PATH=$PWD/stage
+          cmake --build smoke/build
+
+  summary:
+    name: Summary
+    needs: [build-test-sanitized, static-analysis, valgrind, package-smoke]
+    runs-on: ubuntu-latest
+
+    steps:
+      - run: echo "Env strict CI passed"

@@ -10,8 +10,6 @@ It is designed to be:
 - predictable across platforms
 - aligned with modern developer workflows
 
----
-
 ## Philosophy
 
 Environment handling in Vix follows strict principles:
@@ -25,8 +23,6 @@ Environment handling in Vix follows strict principles:
 The goal is to bring a Node.js / Deno-like DX
 to environment management in C++ without breaking C++ principles.
 
----
-
 ## Install
 
 Using Vix:
@@ -34,8 +30,6 @@ Using Vix:
 ```bash
 vix add @vix/env
 ```
-
----
 
 ## Quick Start
 
@@ -49,8 +43,6 @@ int main()
   std::cout << "APP_NAME = " << app << std::endl;
 }
 ```
-
----
 
 ## Basic API
 
@@ -95,8 +87,6 @@ vix::env::set("APP_ENV", "production", true);
 vix::env::unset("APP_ENV");
 ```
 
----
-
 ## Typed Access
 
 ### Boolean
@@ -133,8 +123,6 @@ auto workers = vix::env::get_uint("WORKERS");
 auto ratio = vix::env::get_double("RATIO");
 ```
 
----
-
 ## Working with .env files
 
 ### Load a single file
@@ -161,8 +149,6 @@ if (err)
   std::cerr << err.message();
 }
 ```
-
----
 
 ## Layered .env support
 
@@ -200,8 +186,6 @@ auto err = vix::env::load_layered_into_process(options);
 
 Later files override earlier ones.
 
----
-
 ## Configuration
 
 ```cpp
@@ -221,8 +205,6 @@ options.ignore_missing_files = true;
 options.env.overwrite_existing = true;
 ```
 
----
-
 ## Error Handling
 
 All operations use `Result<T>` or `Error`.
@@ -235,8 +217,6 @@ if (!result)
   std::cerr << result.error().message();
 }
 ```
-
----
 
 ## Parsing Rules
 
@@ -257,8 +237,6 @@ Supports quoted values:
 TITLE="Hello World"
 ```
 
----
-
 ## Design Notes
 
 - no filesystem access in parsing logic
@@ -274,8 +252,6 @@ TITLE="Hello World"
 - `vix_error`
 - `vix_path`
 
----
-
 ## Example Use Case
 
 ```cpp
@@ -286,8 +262,6 @@ vix::env::load_layered_into_process(options);
 
 auto port = vix::env::get_or("PORT", "8080");
 ```
-
----
 
 ## Summary
 
