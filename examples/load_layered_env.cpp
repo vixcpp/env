@@ -1,6 +1,6 @@
 /**
  *
- *  @file layered_env.cpp
+ *  @file load_layered_env.cpp
  *  @author Gaspard Kirira
  *
  *  Copyright 2025, Gaspard Kirira.
@@ -20,55 +20,33 @@
 int main()
 {
   vix::env::EnvFileOptions options;
-
   options.mode = vix::env::EnvFileMode::Layered;
   options.base_dir = ".";
   options.filename = ".env";
   options.environment_name = "development";
-
   options.load_base_file = true;
   options.load_local_file = true;
   options.load_environment_file = true;
   options.load_environment_local_file = true;
-
   options.ignore_missing_files = true;
 
-  auto result = vix::env::load_layered(options);
-  if (!result)
+  auto files = vix::env::load_layered(options);
+  if (!files)
   {
-    std::cerr << "Error: " << result.error().message() << '\n';
+    std::cerr << "load_layered error: " << files.error().message() << '\n';
     return 1;
   }
 
-  const auto &files = result.value();
+  std::cout << "Loaded " << files.value().size() << " file(s)\n";
 
-  std::cout << "Loaded " << files.size() << " file(s)\n";
-
-  for (const auto &file : files)
+  for (const auto &file : files.value())
   {
-    std::cout << "\n--- " << file.path << " ---\n";
+    std::cout << "\n[" << file.path << "]\n";
 
     for (const auto &entry : file.entries)
     {
       std::cout << entry.key << " = " << entry.value << '\n';
     }
-  }
-
-  std::cout << "\n--- Final resolved values (manual merge) ---\n";
-
-  std::unordered_map<std::string, std::string> final_values;
-
-  for (const auto &file : files)
-  {
-    for (const auto &entry : file.entries)
-    {
-      final_values[entry.key] = entry.value;
-    }
-  }
-
-  for (const auto &kv : final_values)
-  {
-    std::cout << kv.first << " = " << kv.second << '\n';
   }
 
   return 0;

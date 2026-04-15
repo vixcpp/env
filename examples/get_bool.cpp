@@ -1,6 +1,6 @@
 /**
  *
- *  @file load_env_file.cpp
+ *  @file get_bool.cpp
  *  @author Gaspard Kirira
  *
  *  Copyright 2025, Gaspard Kirira.
@@ -19,19 +19,16 @@
 
 int main()
 {
-  auto file = vix::env::load_file(".env");
-  if (!file)
+  auto debug = vix::env::get_bool("APP_DEBUG");
+  if (!debug)
   {
-    std::cerr << "load_file error: " << file.error().message() << '\n';
+    std::cerr << "APP_DEBUG error: " << debug.error().message() << '\n';
     return 1;
   }
 
-  std::cout << "Loaded file: " << file.value().path << '\n';
-
-  for (const auto &entry : file.value().entries)
-  {
-    std::cout << entry.key << " = " << entry.value << '\n';
-  }
+  std::cout << "APP_DEBUG = "
+            << (debug.value() ? "true" : "false")
+            << '\n';
 
   return 0;
 }
