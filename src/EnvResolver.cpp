@@ -69,10 +69,10 @@ namespace vix::env
       return out;
     }
 
-    [[nodiscard]] void push_candidate(std::vector<std::string> &candidates,
-                                      std::string_view filename,
-                                      const EnvFileOptions &options,
-                                      vix::error::Error &error)
+    void push_candidate(std::vector<std::string> &candidates,
+                        std::string_view filename,
+                        const EnvFileOptions &options,
+                        vix::error::Error &error)
     {
       if (error.has_error())
       {
