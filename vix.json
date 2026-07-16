@@ -1,0 +1,55 @@
+{
+  "namespace": "vix",
+  "name": "env",
+  "displayName": "Vix Env",
+  "version": "0.1.1",
+  "type": "library",
+  "license": "MIT",
+  "description": "Cross-platform environment variable and dotenv utilities for Vix C++ projects.",
+  "repository": "https://github.com/vixcpp/env.git",
+  "documentation": "https://github.com/vixcpp/env#readme",
+  "include": "include",
+  "standard": "c++20",
+  "keywords": [
+    "vix",
+    "cpp",
+    "env",
+    "dotenv",
+    "configuration"
+  ],
+  "authors": [
+    {
+      "name": "Gaspard Kirira"
+    }
+  ],
+  "maintainers": [
+    {
+      "name": "Gaspard Kirira"
+    }
+  ],
+  "exports": {
+    "modules": [
+      "vix::env"
+    ],
+    "namespaces": [
+      "vix::env"
+    ]
+  },
+  "constraints": {
+    "platforms": [
+      "linux",
+      "macos",
+      "windows"
+    ]
+  },
+  "deps": [
+    {
+      "id": "vix/error",
+      "version": "0.3.1"
+    },
+    {
+      "id": "vix/path",
+      "version": "0.3.1"
+    }
+  ]
+}
