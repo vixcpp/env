@@ -202,6 +202,10 @@ else()
   add_library(vix_env INTERFACE)
   add_library(vix::env ALIAS vix_env)
 
+  set_target_properties(vix_env PROPERTIES
+    EXPORT_NAME env
+  )
+
   target_compile_features(vix_env INTERFACE cxx_std_20)
 
   target_include_directories(vix_env INTERFACE
