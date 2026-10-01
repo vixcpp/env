@@ -14,41 +14,18 @@
  */
 
 #include <cctype>
-#include <cstdlib>
 #include <string>
 #include <string_view>
 
 #include <vix/env/EnvError.hpp>
 #include <vix/env/Get.hpp>
+#include <vix/env/detail/Raw.hpp>
 
 namespace vix::env
 {
 
   namespace
   {
-    [[nodiscard]] const char *get_env_raw(const char *key) noexcept
-    {
-#if defined(_WIN32)
-      static thread_local std::string value;
-      value.clear();
-
-      char *buffer = nullptr;
-      std::size_t length = 0;
-
-      if (_dupenv_s(&buffer, &length, key) != 0 || buffer == nullptr)
-      {
-        return nullptr;
-      }
-
-      value.assign(buffer);
-      free(buffer);
-
-      return value.c_str();
-#else
-      return std::getenv(key);
-#endif
-    }
-
     [[nodiscard]] bool is_valid_env_key(std::string_view key) noexcept
     {
       if (key.empty())
@@ -89,7 +66,7 @@ namespace vix::env
 
     const std::string stable_key(key);
 
-    const char *value = get_env_raw(stable_key.c_str());
+    const char *value = detail::raw_getenv(stable_key.c_str());
     if (value == nullptr)
     {
       return make_env_error(

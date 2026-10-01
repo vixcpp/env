@@ -54,6 +54,19 @@ namespace
     assert_true(!result.ok(), "get should fail for missing variable");
   }
 
+  void test_get_preserves_a_present_empty_value()
+  {
+    const auto set_error = vix::env::set("VIX_ENV_GET_TEST_EMPTY", "");
+    assert_true(!set_error, "set should succeed");
+
+    auto result = vix::env::get("VIX_ENV_GET_TEST_EMPTY");
+    assert_true(result.ok(), "get should succeed for a present empty variable");
+    assert_true(result.value().empty(), "present empty value should remain empty");
+
+    const auto unset_error = vix::env::unset("VIX_ENV_GET_TEST_EMPTY");
+    assert_true(!unset_error, "unset should succeed");
+  }
+
   void test_get_fails_for_empty_key()
   {
     auto result = vix::env::get("");
@@ -71,6 +84,7 @@ int main()
 {
   test_get_returns_value_when_variable_exists();
   test_get_fails_when_variable_does_not_exist();
+  test_get_preserves_a_present_empty_value();
   test_get_fails_for_empty_key();
   test_get_fails_for_invalid_key();
 

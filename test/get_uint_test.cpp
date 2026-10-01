@@ -81,6 +81,18 @@ namespace
     const auto unset_error = vix::env::unset("VIX_ENV_UINT_TEST");
     assert_true(!unset_error, "unset should succeed");
   }
+
+  void test_get_uint_fails_for_overflow()
+  {
+    const auto set_error = vix::env::set("VIX_ENV_UINT_TEST", "999999999999999999999999");
+    assert_true(!set_error, "set should succeed");
+
+    auto result = vix::env::get_uint("VIX_ENV_UINT_TEST");
+    assert_true(!result.ok(), "get_uint should fail for overflow");
+
+    const auto unset_error = vix::env::unset("VIX_ENV_UINT_TEST");
+    assert_true(!unset_error, "unset should succeed");
+  }
 } // namespace
 
 int main()
@@ -89,6 +101,7 @@ int main()
   test_get_uint_ignores_surrounding_spaces();
   test_get_uint_fails_for_negative_value();
   test_get_uint_fails_for_invalid_value();
+  test_get_uint_fails_for_overflow();
 
   std::cout << "vix_env_get_uint_test passed\n";
   return 0;
